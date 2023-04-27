@@ -47,9 +47,9 @@ export default function middleware(request, context) {
       for (let idx = 0; idx < stateNumbers.length - 1; idx++) {
         if (idx === CHECK_SUM_INDEX) continue;
         checkSum += parseInt(stateNumbers[idx]) * idx;
-        checkSum %= 256;
       }
-  
+      
+      checkSum %= 256;
       console.log(checkSum);
       console.log(stateNumbers.join());
       const validState = stateNumbers.length === STATE_LENGTH && parseInt(stateNumbers[CHECK_SUM_INDEX]) === checkSum;
