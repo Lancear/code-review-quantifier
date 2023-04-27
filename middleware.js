@@ -34,6 +34,9 @@ export default function middleware(request, context) {
         if (idx === CHECK_SUM_INDEX) continue;
         randomNumbers[CHECK_SUM_INDEX] += randomNumbers[idx] * idx;
       }
+
+      console.log(randomNumbers.join());
+      randomNumbers[CHECK_SUM_INDEX] %= 256;
   
       const state = btoa(new TextDecoder().decode(randomNumbers));
       const { CLIENT_ID } = process.env;
