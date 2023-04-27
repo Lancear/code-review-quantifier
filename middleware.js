@@ -37,7 +37,7 @@ export default async function middleware(request, context) {
 
       const state = btoa(randomNumbers.join('.'));
       const { CLIENT_ID } = process.env;
-      return Response.redirect('https://github.com/login/oauth/authorize?client_id=' + CLIENT_ID + "&state=" + state);
+      return Response.redirect('https://github.com/login/oauth/authorize?scope=repo&client_id=' + CLIENT_ID + '&state=' + state);
     }
     else if (url.pathname === "/auth/authorize") {
       const stateNumbers = atob(url.searchParams.get('state')).split('.');
@@ -55,7 +55,11 @@ export default async function middleware(request, context) {
   
       const tokenInfo = await fetchAccessToken(url.searchParams.get('code'));
       console.log(JSON.stringify(tokenInfo, null, 2));
-      return new Response("simple middleware");
+      if (tokenInfo.scope !== "repo") return new Response("Unauthorized", { status: 401 });
+
+      const res = Response.redirect("/");
+      res.headers.append('Set-Cookie', 'token=' + tokenInfo.access_token + '; SameSite=Strict; Path=/api; Secure; HttpOnly');
+      return res;
     }
   }
   catch (err) {
