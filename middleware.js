@@ -9,7 +9,6 @@ export const config = {
  */
 export default function middleware(request, context) {
   const url = new URL(request.url);
-  console.log(url.pathname);
 
   if (url.pathname === "/auth/login") {
     const randomNumbers = new Uint8Array({ length: 9 });
@@ -31,7 +30,7 @@ export default function middleware(request, context) {
     const stateNumbers = atob(url.searchParams.get('state')).split('.');
     let sum = 13;
     for (let idx = 0; idx < stateNumbers.length - 1; idx++) {
-      sum += parseInt(randomNumbers[idx]) * idx;
+      sum += parseInt(stateNumbers[idx]) * idx;
     }
 
     const validState = parseInt(stateNumbers[stateNumbers.length - 1]) === sum;
