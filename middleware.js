@@ -3,13 +3,19 @@ export const config = {
 };
 
 async function fetchAccessToken(code, tokenInfo) {
-  const { CLIENT_ID, CLIENT_SECRET } = process.env;
-  const res = await fetch(
-    'https://github.com/login/oauth/access_token?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&code=' + code, 
-    { method: 'POST', headers: { 'Accept': 'application/json' }}
-  );
+  try {
+    const { CLIENT_ID, CLIENT_SECRET } = process.env;
+    const res = await fetch(
+      'https://github.com/login/oauth/access_token?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&code=' + code, 
+      { method: 'POST', headers: { 'Accept': 'application/json' }}
+    );
 
-  Object.assign(tokenInfo, await res.json());
+    tokenInfo.token = await res.json();
+    console.log('success');
+  }
+  catch (err) {
+    console.log(err);
+  }
 }
 
 const STATE_LENGTH = 7;
@@ -50,8 +56,6 @@ export default function middleware(request, context) {
       }
       
       checkSum %= 256;
-      console.log(checkSum);
-      console.log(stateNumbers.join());
       const validState = stateNumbers.length === STATE_LENGTH && parseInt(stateNumbers[CHECK_SUM_INDEX]) === checkSum;
       if (!validState) return new Response("Unauthorized", { status: 401 });
   
