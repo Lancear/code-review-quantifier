@@ -1,5 +1,5 @@
 export const config = {
-  matcher: '/auth/:path*',
+  matcher: ['/auth/:path*', '/api/:path*'],
 };
 
 /**
@@ -11,30 +11,27 @@ export default function middleware(request, context) {
   const url = new URL(request.url);
 
   if (url.pathname === "/auth/login") {
-    const randomNumbers = new Uint8Array({ length: 9 });
+    const randomNumbers = new Uint8Array({ length: 10 });
     crypto.getRandomValues(randomNumbers);
 
-    let sum = 13;
-    for (let idx = 0; idx < randomNumbers.length; idx++) {
-      sum += randomNumbers[idx] * idx;
+    randomNumbers[9] = 13;
+    for (let idx = 0; idx < randomNumbers.length - 1; idx++) {
+      randomNumbers[9] += randomNumbers[idx] * idx;
     }
 
-    const state = btoa(randomNumbers.join('.') + '.' + sum);
+    const state = btoa(new TextDecoder().decode(randomNumbers));
     const { CLIENT_ID } = process.env;
     return Response.redirect('https://github.com/login/oauth/authorize?client_id=' + CLIENT_ID + "&state=" + state);
   }
   else if (url.pathname === "/auth/authorize") {
-    console.log(url.searchParams.get('code'));
-    console.log(url.searchParams.get('state'));
+    const stateNumbers = new TextEncoder().encode(atob(url.searchParams.get('state')));
 
-    const stateNumbers = atob(url.searchParams.get('state')).split('.');
-    let sum = 13;
+    let checkSum = 13;
     for (let idx = 0; idx < stateNumbers.length - 1; idx++) {
-      sum += parseInt(stateNumbers[idx]) * idx;
+      checkSum += parseInt(stateNumbers[idx]) * idx;
     }
 
-    const validState = parseInt(stateNumbers[stateNumbers.length - 1]) === sum;
-    console.log('Valid state:', validState);
+    const validState = parseInt(stateNumbers[9]) === checkSum;
     return validState ? new Response("oha vip guest") : new Response("simple middleware");
   }
 
