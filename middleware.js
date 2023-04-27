@@ -44,7 +44,7 @@ export default function middleware(request, context) {
       if (stateNumbers.length > 2 * STATE_LENGTH) return new Response("Unauthorized", { status: 401 });
   
       let checkSum = CHECK_SUM_INIT;
-      for (let idx = 0; idx < stateNumbers.length - 1; idx++) {
+      for (let idx = 0; idx < stateNumbers.length; idx++) {
         if (idx === CHECK_SUM_INDEX) continue;
         checkSum += parseInt(stateNumbers[idx]) * idx;
       }
