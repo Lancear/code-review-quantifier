@@ -2,20 +2,14 @@ export const config = {
   matcher: ['/auth/:path*', '/api/:path*'],
 };
 
-async function fetchAccessToken(code, tokenInfo) {
-  try {
-    const { CLIENT_ID, CLIENT_SECRET } = process.env;
-    const res = await fetch(
-      'https://github.com/login/oauth/access_token?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&code=' + code, 
-      { method: 'POST', headers: { 'Accept': 'application/json' }}
-    );
+async function fetchAccessToken(code) {
+  const { CLIENT_ID, CLIENT_SECRET } = process.env;
+  const res = await fetch(
+    'https://github.com/login/oauth/access_token?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&code=' + code, 
+    { method: 'POST', headers: { 'Accept': 'application/json' }}
+  );
 
-    tokenInfo.token = await res.json();
-    console.log('success');
-  }
-  catch (err) {
-    console.log(err);
-  }
+  return res.json();
 }
 
 const STATE_LENGTH = 7;
@@ -27,7 +21,7 @@ const CHECK_SUM_INIT = 13;
  * @param {Request} request 
  * @param {import('@vercel/edge').RequestContext} context 
  */
-export default function middleware(request, context) {
+export default async function middleware(request, context) {
   const url = new URL(request.url);
 
   try {
@@ -59,8 +53,7 @@ export default function middleware(request, context) {
       const validState = stateNumbers.length === STATE_LENGTH && parseInt(stateNumbers[CHECK_SUM_INDEX]) === checkSum;
       if (!validState) return new Response("Unauthorized", { status: 401 });
   
-      const tokenInfo = {};
-      context.waitUntil(fetchAccessToken(url.searchParams.get('code'), tokenInfo));
+      const tokenInfo = await fetchAccessToken(url.searchParams.get('code'));
       console.log(JSON.stringify(tokenInfo, null, 2));
       return new Response("simple middleware");
     }
