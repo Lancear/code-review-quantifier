@@ -59,7 +59,7 @@ export default async function middleware(request, context) {
 
       url.pathname = '/';
       const res = Response.redirect(url);
-      res.headers.append('Set-Cookie', 'token=' + tokenInfo.access_token + '; SameSite=Strict; Path=/api; Secure; HttpOnly');
+      res.headers.set('Set-Cookie', 'token=' + tokenInfo.access_token + '; SameSite=Strict; Path=/api; Secure; HttpOnly');
       return res;
     }
   }
