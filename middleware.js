@@ -59,6 +59,7 @@ export default async function middleware(request, context) {
 
       const headers = new Headers();
       url.pathname = '/';
+      url.search = '';
       headers.set('Location', url.toString());
       headers.set('Set-Cookie', 'token=' + tokenInfo.access_token + '; SameSite=Strict; Path=/api; Secure; HttpOnly');
       return new Response(null, { headers, status: 302 });
@@ -67,6 +68,10 @@ export default async function middleware(request, context) {
   catch (err) {
     console.log(err);
     return new Response("Unauthorized", { status: 401 });
+  }
+
+  if (url.pathname.startsWith("/api")) {
+    console.log(request.headers.get('Cookie'));
   }
 
   return new Response("simple middleware");
