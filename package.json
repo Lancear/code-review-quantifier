@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@octokit/rest": "^19.0.7",
+    "@vercel/edge": "^0.3.4",
     "dotenv": "^16.0.3",
     "minimatch": "^9.0.0",
     "node-fetch": "^3.3.1",

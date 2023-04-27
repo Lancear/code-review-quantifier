@@ -4,6 +4,9 @@ dependencies:
   '@octokit/rest':
     specifier: ^19.0.7
     version: 19.0.7
+  '@vercel/edge':
+    specifier: ^0.3.4
+    version: 0.3.4
   dotenv:
     specifier: ^16.0.3
     version: 16.0.3
@@ -136,6 +139,10 @@ packages:
     resolution: {integrity: sha512-LPbJIuu1WNoRHbN4UMysEdlissRFpTCWyoKT7kHPufI8T+XX33/qilfMWJo3mCOjNIKu0+43oSQPf+HJa0+TTQ==}
     dependencies:
       '@octokit/openapi-types': 17.0.0
+    dev: false
+
+  /@vercel/edge@0.3.4:
+    resolution: {integrity: sha512-dFU+yAUDQRwpuRGxRDlEO1LMq0y1LGsBgkyryQWe4w15/Fy2/lCnpvdIoAhHl3QvIGAxCLHzwRHsqfLRdpxgJQ==}
     dev: false
 
   /ansi-regex@2.1.1:
