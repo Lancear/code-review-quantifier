@@ -1,0 +1,17 @@
+{
+  "name": "pr-quanitifier.prototype",
+  "author": "lancear",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@octokit/rest": "^19.0.7",
+    "dotenv": "^16.0.3",
+    "minimatch": "^9.0.0",
+    "node-fetch": "^3.3.1",
+    "tree-sitter": "^0.20.1",
+    "tree-sitter-typescript": "^0.20.1"
+  }
+}
