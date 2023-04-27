@@ -59,6 +59,7 @@ export default function middleware(request, context) {
     }
   }
   catch (err) {
+    console.log(err);
     return new Response("Unauthorized", { status: 401 });
   }
 
