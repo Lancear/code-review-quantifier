@@ -12,7 +12,7 @@ async function fetchAccessToken(code, tokenInfo) {
   Object.assign(tokenInfo, await res.json());
 }
 
-const STATE_LENGTH = 10;
+const STATE_LENGTH = 7;
 const CHECK_SUM_INDEX = 3;
 const CHECK_SUM_INIT = 13;
 
@@ -35,15 +35,12 @@ export default function middleware(request, context) {
         randomNumbers[CHECK_SUM_INDEX] += randomNumbers[idx] * idx;
       }
 
-      console.log(randomNumbers.join());
-      randomNumbers[CHECK_SUM_INDEX] %= 256;
-  
-      const state = btoa(new TextDecoder().decode(randomNumbers));
+      const state = btoa(randomNumbers.join('.'));
       const { CLIENT_ID } = process.env;
       return Response.redirect('https://github.com/login/oauth/authorize?client_id=' + CLIENT_ID + "&state=" + state);
     }
     else if (url.pathname === "/auth/authorize") {
-      const stateNumbers = new TextEncoder().encode(atob(url.searchParams.get('state')));
+      const stateNumbers = atob(url.searchParams.get('state')).split('.');
       if (stateNumbers.length > 2 * STATE_LENGTH) return new Response("Unauthorized", { status: 401 });
   
       let checkSum = CHECK_SUM_INIT;
@@ -52,6 +49,7 @@ export default function middleware(request, context) {
         checkSum += parseInt(stateNumbers[idx]) * idx;
       }
   
+      checkSum %= 256;
       const validState = stateNumbers.length === STATE_LENGTH && parseInt(stateNumbers[CHECK_SUM_INDEX]) === checkSum;
       if (!validState) return new Response("Unauthorized", { status: 401 });
   
