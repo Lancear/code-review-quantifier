@@ -57,7 +57,8 @@ export default async function middleware(request, context) {
       console.log(JSON.stringify(tokenInfo, null, 2));
       if (tokenInfo.scope !== "repo") return new Response("Unauthorized", { status: 401 });
 
-      const res = Response.redirect("/");
+      url.pathname = '/';
+      const res = Response.redirect(url);
       res.headers.append('Set-Cookie', 'token=' + tokenInfo.access_token + '; SameSite=Strict; Path=/api; Secure; HttpOnly');
       return res;
     }
