@@ -19,6 +19,9 @@ export default async function middleware(request, context) {
 
       const signature = new Uint8Array(await crypto.subtle.sign("hmac", await getSignKey(), randomNumbers));
 
+      console.log(randomNumbers);
+      console.log(signature);
+
       const state = btoa(randomNumbers.join('-') + '.' + signature.join('-'));
       const { CLIENT_ID } = process.env;
       return Response.redirect('https://github.com/login/oauth/authorize?scope=repo, user&client_id=' + CLIENT_ID + '&state=' + state);
@@ -30,11 +33,14 @@ export default async function middleware(request, context) {
       const stateNumbers = new Uint8Array(stateParts[0].split('-').map(n => parseInt(n)));
       const stateSignature = new Uint8Array(stateParts[1].split('-').map(n => parseInt(n)));
       
+      console.log(stateNumbers);
+      console.log(stateSignature);
+
       const validState = stateNumbers.length === STATE_LENGTH && await crypto.subtle.verify("hmac", await getSignKey(), stateSignature, stateNumbers);
       if (!validState) return new Response("Unauthorized", { status: 401 });
   
       const tokenInfo = await fetchAccessToken(url.searchParams.get('code'));
-      if (tokenInfo.scope !== "repo") return new Response("Unauthorized", { status: 401 });
+      if (!tokenInfo.scope.includes("repo")) return new Response("Unauthorized", { status: 401 });
 
       const headers = new Headers();
       url.pathname = '/';
