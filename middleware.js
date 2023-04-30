@@ -1,20 +1,8 @@
 export const config = {
-  matcher: ['/auth/:path*', '/api/:path*'],
+  matcher: '/auth/:path*',
 };
 
-async function fetchAccessToken(code) {
-  const { CLIENT_ID, CLIENT_SECRET } = process.env;
-  const res = await fetch(
-    'https://github.com/login/oauth/access_token?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&code=' + code, 
-    { method: 'POST', headers: { 'Accept': 'application/json' }}
-  );
-
-  return res.json();
-}
-
-const STATE_LENGTH = 7;
-const CHECK_SUM_INDEX = 3;
-const CHECK_SUM_INIT = 13;
+const STATE_LENGTH = 3;
 
 /**
  * 
@@ -28,33 +16,24 @@ export default async function middleware(request, context) {
     if (url.pathname === "/auth/login") {
       const randomNumbers = new Uint8Array({ length: STATE_LENGTH });
       crypto.getRandomValues(randomNumbers);
-  
-      randomNumbers[CHECK_SUM_INDEX] = CHECK_SUM_INIT;
-      for (let idx = 0; idx < randomNumbers.length; idx++) {
-        if (idx === CHECK_SUM_INDEX) continue;
-        randomNumbers[CHECK_SUM_INDEX] += randomNumbers[idx] * idx;
-      }
 
-      const state = btoa(randomNumbers.join('.'));
+      const signature = new Uint8Array(await crypto.subtle.sign("hmac", await getSignKey(), randomNumbers));
+
+      const state = btoa(randomNumbers.join('-') + '.' + signature.join('-'));
       const { CLIENT_ID } = process.env;
       return Response.redirect('https://github.com/login/oauth/authorize?scope=repo&client_id=' + CLIENT_ID + '&state=' + state);
     }
     else if (url.pathname === "/auth/authorize") {
-      const stateNumbers = atob(url.searchParams.get('state')).split('.');
-      if (stateNumbers.length > 2 * STATE_LENGTH) return new Response("Unauthorized", { status: 401 });
-  
-      let checkSum = CHECK_SUM_INIT;
-      for (let idx = 0; idx < stateNumbers.length; idx++) {
-        if (idx === CHECK_SUM_INDEX) continue;
-        checkSum += parseInt(stateNumbers[idx]) * idx;
-      }
+      const stateParts = atob(url.searchParams.get('state')).split('.');
+      if (stateParts.length !== 2) return new Response("Unauthorized", { status: 401 });
+
+      const stateNumbers = new Uint8Array(stateParts[0].split('-').map(n => parseInt(n)));
+      const stateSignature = new Uint8Array(stateParts[1].split('-').map(n => parseInt(n)));
       
-      checkSum %= 256;
-      const validState = stateNumbers.length === STATE_LENGTH && parseInt(stateNumbers[CHECK_SUM_INDEX]) === checkSum;
+      const validState = stateNumbers.length === STATE_LENGTH && await crypto.subtle.verify("hmac", await getSignKey(), stateSignature, stateNumbers);
       if (!validState) return new Response("Unauthorized", { status: 401 });
   
       const tokenInfo = await fetchAccessToken(url.searchParams.get('code'));
-      console.log(JSON.stringify(tokenInfo, null, 2));
       if (tokenInfo.scope !== "repo") return new Response("Unauthorized", { status: 401 });
 
       const headers = new Headers();
@@ -66,13 +45,22 @@ export default async function middleware(request, context) {
     }
   }
   catch (err) {
-    console.log(err);
+    console.error(err);
     return new Response("Unauthorized", { status: 401 });
   }
-
-  if (url.pathname.startsWith("/api")) {
-    console.log(request.headers.get('Cookie'));
-  }
-
-  return new Response("simple middleware");
 };
+
+function getSignKey() {
+  const { SIGN_KEY } = process.env;
+  return crypto.subtle.importKey("jwk", { k: SIGN_KEY, kty: "oct" }, { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+}
+
+async function fetchAccessToken(code) {
+  const { CLIENT_ID, CLIENT_SECRET } = process.env;
+  const res = await fetch(
+    'https://github.com/login/oauth/access_token?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&code=' + code, 
+    { method: 'POST', headers: { 'Accept': 'application/json' }}
+  );
+
+  return res.json();
+}
