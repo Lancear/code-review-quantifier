@@ -24,7 +24,7 @@ export default async function middleware(request, context) {
 
       const state = btoa(randomNumbers.join('-') + '.' + signature.join('-'));
       const { CLIENT_ID } = process.env;
-      return Response.redirect('https://github.com/login/oauth/authorize?scope=repo, user&client_id=' + CLIENT_ID + '&state=' + state);
+      return Response.redirect('https://github.com/login/oauth/authorize?scope=repo, project&client_id=' + CLIENT_ID + '&state=' + state);
     }
     else if (url.pathname === "/auth/authorize") {
       const stateParts = atob(url.searchParams.get('state')).split('.');
