@@ -28,8 +28,10 @@ export default function handler(
   response,
 ) {
   console.dir(request.body.installation);
-  console.dir(request.body.repository);
-  console.dir(request.body.pull_request );
+  console.dir(request.body.repository.name);
+  console.dir(request.body.repository.full_name);
+  console.dir(request.body.repository.owner);
+  console.dir(request.body.pull_request.number);
   response.status(200).send();
 }
 async function quantifyPr({ owner, repo, pull_number }, config) {
