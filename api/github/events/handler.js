@@ -1,11 +1,11 @@
 import { Octokit } from '@octokit/rest';
-import dotenv from 'dotenv';
 import { minimatch } from 'minimatch';
 import Parser from 'tree-sitter';
 import Typescript from 'tree-sitter-typescript';
-import fs from 'fs';
 
-dotenv.config();
+export const config = {
+  runtime: 'edge',
+};
 
 const { GITHUB_TOKEN } = process.env;
 const PARSERS = initParsers();
@@ -23,126 +23,15 @@ function initParsers() {
   };
 }
 
-let INITIAL_RUNNING = true;
-
-const CACHE = {
-  1338: "2023-04-25T13:03:26Z",
-  1418: "2023-04-25T13:03:21Z",
-  1429: "2023-04-25T13:21:07Z",
-  1430: "2023-04-25T10:14:46Z",
-  1432: "2023-04-25T10:14:31Z",
-  1434: "2023-04-28T09:16:35Z",
-  1435: "2023-04-28T09:16:30Z",
-  1436: "2023-04-28T09:16:25Z",
-  1438: "2023-04-25T13:03:11Z",
-  1442: "2023-04-25T10:13:18Z",
-  1443: "2023-04-28T09:16:20Z",
-  1444: "2023-04-25T13:21:02Z",
-  1445: "2023-04-25T13:03:02Z",
-  1446: "2023-04-28T09:16:15Z",
-  1447: "2023-04-28T09:16:09Z",
-  1448: "2023-04-28T10:31:36Z",
-  1449: "2023-04-28T09:26:34Z",
-  1450: "2023-04-28T09:22:16Z",
-  1451: "2023-04-28T09:28:33Z",
-  1452: "2023-04-28T10:47:15Z",
-  1453: "2023-04-28T10:55:15Z",
-  1454: "2023-04-28T12:12:15Z",
-  1455: "2023-04-28T12:22:56Z",
-  1456: "2023-04-28T12:44:43Z",
-  1457: "2023-04-28T12:40:16Z",
-  1458: "2023-04-28T12:50:19Z"
+/**
+ * 
+ * @param {Request} request 
+ * @param {import('@vercel/edge').RequestContext} context 
+ */
+export default async function handler(request, context) {
+  console.log(await request.text());
+  return new Response(null, { status: 200 });
 };
-
-setInterval(() => main(), 30_000);
-main(true);
-
-async function main(isInit) {
-  const CONFIG = {
-    exclude: {
-      files: [
-        "**/*.yml",
-        "**/*.yaml",
-        "**/*.json",
-        "**/*.md",
-        "**/*.lock",
-        "**/*.test.ts",
-        "**/*.fixtures.ts",
-      ],
-      lines: {
-        blank: true,
-        comments: true,
-        imports: true,
-      }
-    },
-    target: 256,
-    labels: [
-      {
-        name: "Extra Small",
-        maxChanges: 16,
-      },
-      {
-        name: "Small",
-        maxChanges: 64,
-      },
-      {
-        name: "Medium",
-        maxChanges: 256,
-      },
-      {
-        name: "Large",
-        maxChanges: 512,
-      },
-      {
-        name: "Extra Large",
-      },
-    ],
-  };
-
-  if (!isInit && INITIAL_RUNNING) return;
-
-  const github = new Octokit({
-    auth: GITHUB_TOKEN,
-  });
-
-  const { data: prs } = await github.pulls.list({
-    owner: 'shopstory-ai',
-    repo: 'shopstory',
-    per_page: 100,
-    state: 'open'
-  });
-
-  for (const pr of prs) {
-    if (CACHE[pr.number] !== pr.updated_at) {
-      console.log(`Quantifying #${pr.number} ${pr.title}`);
-
-      try {
-        await quantifyPr(
-          {
-            owner: 'shopstory-ai',
-            repo: 'shopstory',
-            pull_number: pr.number,
-          },
-          CONFIG
-        );
-      }
-      catch (err) {
-        console.error("Seems to have a merge conflict!");
-      }
-
-      const { data: modifiedPr } = await github.pulls.get({
-        owner: 'shopstory-ai',
-        repo: 'shopstory',
-        pull_number: pr.number,
-      });
-
-      CACHE[pr.number] = modifiedPr.updated_at;
-      fs.writeFileSync('./cache.json', JSON.stringify(CACHE, null, 2));
-    }
-  }
-
-  INITIAL_RUNNING = false;
-}
 
 async function quantifyPr({ owner, repo, pull_number }, config) {
   config.labels.sort((a, b) => a.maxChanges - b.maxChanges);
@@ -205,11 +94,11 @@ async function quantifyPr({ owner, repo, pull_number }, config) {
       labels: [label.name],
     });
 
-    await github.issues.createComment({
-      ...REPO_INFO,
-      issue_number: pr.number,
-      body: '## This pull request seems to have `' + changes + '` changes!\nGenerally speaking it is best to aim for `' + config.target + '` or less to keep pull requests easy and quick to review!\n\n### Detailed stats:\n```json\n' + JSON.stringify(stats, null, 2) + '\n```\n\n' + (changes <= config.target ? '![](https://media.tenor.com/TMCjhANSMhEAAAAC/bear-small-but-mighty.gif)\n' : '![](https://media.tenor.com/WxsVrj5SehYAAAAM/you-are-fat-face.gif)\n'),
-    });
+    // await github.issues.createComment({
+    //   ...REPO_INFO,
+    //   issue_number: pr.number,
+    //   body: '## This pull request seems to have `' + changes + '` changes!\nGenerally speaking it is best to aim for `' + config.target + '` or less to keep pull requests easy and quick to review!\n\n### Detailed stats:\n```json\n' + JSON.stringify(stats, null, 2) + '\n```\n\n' + (changes <= config.target ? '![](https://media.tenor.com/TMCjhANSMhEAAAAC/bear-small-but-mighty.gif)\n' : '![](https://media.tenor.com/WxsVrj5SehYAAAAM/you-are-fat-face.gif)\n'),
+    // });
   }
 }
 
