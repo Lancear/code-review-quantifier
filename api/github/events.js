@@ -27,7 +27,9 @@ export default function handler(
   request,
   response,
 ) {
-  console.dir(request.body);
+  console.dir(request.body.installation);
+  console.dir(request.body.repository);
+  console.dir(request.body.pull_request );
   response.status(200).send();
 }
 async function quantifyPr({ owner, repo, pull_number }, config) {
