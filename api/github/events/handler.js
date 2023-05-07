@@ -3,10 +3,6 @@ import { minimatch } from 'minimatch';
 import Parser from 'tree-sitter';
 import Typescript from 'tree-sitter-typescript';
 
-export const config = {
-  runtime: 'edge',
-};
-
 const { GITHUB_TOKEN } = process.env;
 const PARSERS = initParsers();
 
@@ -24,15 +20,16 @@ function initParsers() {
 }
 
 /**
- * 
- * @param {Request} request 
- * @param {import('@vercel/edge').RequestContext} context 
+ * @param {import('@vercel/node').VercelRequest} request
+ * @param {import('@vercel/node').VercelResponse} response 
  */
-export default async function handler(request, context) {
-  console.log(await request.text());
-  return new Response(null, { status: 200 });
-};
-
+export default function handler(
+  request,
+  response,
+) {
+  console.dir(request.body);
+  response.status(200).send();
+}
 async function quantifyPr({ owner, repo, pull_number }, config) {
   config.labels.sort((a, b) => a.maxChanges - b.maxChanges);
 
