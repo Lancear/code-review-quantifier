@@ -47,7 +47,6 @@ export default async function handler(request,response) {
   if (!installation || !repository || !pull_request) return;
 
   try {
-    console.dir(installation);
     const tokenInfo = await fetchAccessToken(installation);
     await quantifyPr(
       tokenInfo.token, 
