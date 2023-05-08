@@ -65,12 +65,12 @@ async function fetchAccessToken(installation) {
   const token = jwt.sign({
     iat: Math.floor(Date.now() / 1000) - 60,
     exp: Math.floor(Date.now() / 1000) + 5 * 60,
-    iss: installation.id,
+    iss: installation.node_id,
     alg: 'RS256',
   }, PRIVATE_KEY, { algorithm: 'RS256' });
 
   const res = await fetch(
-    'https://api.github.com/app/installations/' + installation.id + '/access_tokens', 
+    'https://api.github.com/app/installations/' + installation.node_id + '/access_tokens', 
     { method: 'POST', headers: { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + token }}
   );
 
@@ -92,7 +92,7 @@ export default async function handler(request,response) {
   const { installation, repository, pull_request } = request.body;
 
   try {
-    console.dir(installation);
+    console.dir(installation.node_id);
     const tokenInfo = await fetchAccessToken(installation);
     console.dir(tokenInfo);
     // await quantifyPr(
