@@ -2,8 +2,8 @@ import { Octokit } from '@octokit/rest';
 import { minimatch } from 'minimatch';
 import Parser from 'tree-sitter';
 import Typescript from 'tree-sitter-typescript';
+import jwt from "jsonwebtoken";
 
-const { GITHUB_TOKEN } = process.env;
 const PARSERS = initParsers();
 
 function initParsers() {
@@ -19,22 +19,97 @@ function initParsers() {
   };
 }
 
+const CONFIG = {
+  exclude: {
+    files: [
+      "**/*.yml",
+      "**/*.yaml",
+      "**/*.json",
+      "**/*.md",
+      "**/*.lock",
+      "**/*.test.ts",
+      "**/*.fixtures.ts",
+    ],
+    lines: {
+      blank: true,
+      comments: true,
+      imports: true,
+    }
+  },
+  target: 256,
+  labels: [
+    {
+      name: "Extra Small",
+      maxChanges: 16,
+    },
+    {
+      name: "Small",
+      maxChanges: 64,
+    },
+    {
+      name: "Medium",
+      maxChanges: 256,
+    },
+    {
+      name: "Large",
+      maxChanges: 512,
+    },
+    {
+      name: "Extra Large",
+    },
+  ],
+};
+
+async function fetchAccessToken(installation) {
+  const { PRIVATE_KEY } = process.env;
+  const token = jwt.sign({
+    iat: Date.now() - 60_000,
+    exp: Date.now() + 5 * 60_000,
+    iss: installation.id,
+    alg: "RS256",
+  }, PRIVATE_KEY);
+
+  const res = await fetch(
+    'https://api.github.com/app/installations/' + installation.id + '/access_tokens', 
+    { method: 'POST', headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + token }}
+  );
+
+  return res.json();
+}
+
 /**
  * @param {import('@vercel/node').VercelRequest} request
  * @param {import('@vercel/node').VercelResponse} response 
  */
-export default function handler(
-  request,
-  response,
-) {
-  console.dir(request.body.installation);
-  console.dir(request.body.repository.name);
-  console.dir(request.body.repository.full_name);
-  console.dir(request.body.repository.owner);
-  console.dir(request.body.pull_request.number);
+export default async function handler(request,response) {
+  // console.dir(request.body.installation);
+  // console.dir(request.body.repository.name);
+  // console.dir(request.body.repository.owner.login);
+  // console.dir(request.body.pull_request.number);
+
+  const { installation, repository, pull_request } = request.body;
+
+  try {
+    const tokenInfo = await fetchAccessToken(installation);
+    console.dir(tokenInfo);
+    await quantifyPr(
+      tokenInfo.token, 
+      { 
+        owner: repository.owner.login, 
+        repo: repository.name, 
+        pull_number: pull_request.number 
+      }, 
+      pull_request, 
+      CONFIG
+    );
+  }
+  catch (err) {
+    console.error(err);
+  }
+
   response.status(200).send();
 }
-async function quantifyPr({ owner, repo, pull_number }, config) {
+async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr, config) {
   config.labels.sort((a, b) => a.maxChanges - b.maxChanges);
 
   const REPO_INFO = {
@@ -51,7 +126,6 @@ async function quantifyPr({ owner, repo, pull_number }, config) {
     auth: GITHUB_TOKEN,
   });
 
-  const { data: pr } = await github.pulls.get(PR_INFO);
   const files = await getPrFiles(github, PR_INFO);
 
   const filteredFiles = files.filter((file) => !config.exclude.files.some(
