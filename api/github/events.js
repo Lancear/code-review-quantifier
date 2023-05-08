@@ -120,6 +120,7 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
 
   const statsPerFile = await Promise.all(statsPromises);
   const { stats, changes, label } = countTotalCountInfo(statsPerFile, config);
+  if (!label) return;
 
   const configLabelNames = config.labels?.map(label => label.name);
   const labelsToRemove = pr.labels.filter(
@@ -132,30 +133,55 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
     name: label.name,
   })));
 
-  // if (!pr.labels.find((prLabel) => prLabel.name === label.name)) {
+  if (!pr.labels.find((prLabel) => prLabel.name === label.name)) {
     await github.issues.addLabels({
       ...REPO_INFO,
       issue_number: PR_INFO.pull_number,
       labels: [label.name],
     });
+  }
 
-    try {
-      const res = await github.issues.listComments({
-        ...REPO_INFO,
-        issue_number: PR_INFO.pull_number,
-      });
+  const bodyTemplate = label.comment ?? config.comment;
+  if (!bodyTemplate) return;
 
-      // console.dir(res.data.map(d => d.user));
-    }
-    catch (err) {
-    }
 
-    // await github.issues.createComment({
-    //   ...REPO_INFO,
-    //   issue_number: pr.number,
-    //   body: '## This pull request seems to have `' + changes + '` changes!\nGenerally speaking it is best to aim for `' + 256 + '` or less to keep pull requests easy and quick to review!\n\n### Detailed stats:\n```json\n' + JSON.stringify(stats, null, 2) + '\n```\n\n' + (changes <= config.target ? '![](https://media.tenor.com/TMCjhANSMhEAAAAC/bear-small-but-mighty.gif)\n' : '![](https://media.tenor.com/WxsVrj5SehYAAAAM/you-are-fat-face.gif)\n'),
-    // });
-  // }
+  const placeholders = {
+    codeblock: {
+      stats: '```json\n' + JSON.stringify(stats, null, 2) + '\n```\n',
+    },
+    stats,
+    label,
+    changes,
+  };
+
+  const body = bodyTemplate.replace(/\$\{([^.]+(\.[^.]+)*)\}/g, (_, placeholder) => { 
+    const keys = placeholder.split('.'); 
+    let val = placeholders; 
+    for (const key of keys) val = val ? val[key] : ''; 
+    return val;
+  });
+
+  const { data: comments } = await github.issues.listComments({
+    ...REPO_INFO,
+    issue_number: PR_INFO.pull_number,
+  });
+
+  const ownComment = comments.find(comment => comment.user.login === 'code-review-quantifier[bot]');
+
+  if (ownComment?.id) {
+    await github.issues.updateComment({
+      ...REPO_INFO,
+      comment_id: ownComment.id,
+      body,
+    });
+  }
+  else {
+    await github.issues.createComment({
+      ...REPO_INFO,
+      issue_number: pr.number,
+      body,
+    });
+  }
 }
 
 async function getPrFiles(github, { owner, repo, pull_number }) {
