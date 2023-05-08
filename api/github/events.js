@@ -61,17 +61,17 @@ const CONFIG = {
 };
 
 async function fetchAccessToken(installation) {
-  const { PRIVATE_KEY } = process.env;
+  const { PRIVATE_KEY, APP_ID } = process.env;
   const token = jwt.sign({
     iat: Math.floor(Date.now() / 1000) - 60,
     exp: Math.floor(Date.now() / 1000) + 5 * 60,
-    iss: installation.id,
+    iss: APP_ID,
     alg: 'RS256',
   }, PRIVATE_KEY, { algorithm: 'RS256' });
 
   const res = await fetch(
     'https://api.github.com/app/installations/' + installation.node_id + '/access_tokens', 
-    { method: 'POST', headers: { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + token }}
+    { method: 'GET', headers: { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + token }}
   );
 
   console.dir(res.status);
