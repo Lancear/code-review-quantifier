@@ -86,9 +86,7 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
       path: '.quantifier.json',
     });
 
-    console.dir(Buffer.from(res.data.content, 'base64').toString());
     config = JSON.parse(Buffer.from(res.data.content, 'base64').toString());
-    console.dir(config);
     config.labels?.sort((a, b) => a.maxChanges - b.maxChanges);
   }
   catch (err) {
@@ -132,7 +130,7 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
     name: label.name,
   })));
 
-  if (!pr.labels.find((prLabel) => prLabel.name === label.name)) {
+  // if (!pr.labels.find((prLabel) => prLabel.name === label.name)) {
     await github.issues.addLabels({
       ...REPO_INFO,
       issue_number: PR_INFO.pull_number,
@@ -145,7 +143,7 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
         issue_number: PR_INFO.pull_number,
       });
 
-      console.dir(res.data);
+      console.dir(res.data.map(d => d.user));
     }
     catch (err) {
     }
@@ -155,7 +153,7 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
     //   issue_number: pr.number,
     //   body: '## This pull request seems to have `' + changes + '` changes!\nGenerally speaking it is best to aim for `' + 256 + '` or less to keep pull requests easy and quick to review!\n\n### Detailed stats:\n```json\n' + JSON.stringify(stats, null, 2) + '\n```\n\n' + (changes <= config.target ? '![](https://media.tenor.com/TMCjhANSMhEAAAAC/bear-small-but-mighty.gif)\n' : '![](https://media.tenor.com/WxsVrj5SehYAAAAM/you-are-fat-face.gif)\n'),
     // });
-  }
+  // }
 }
 
 async function getPrFiles(github, { owner, repo, pull_number }) {
