@@ -156,9 +156,14 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
 
   const body = bodyTemplate.replace(/\$\{([^.}]+(\.[^.}]+)*)\}/g, (_, placeholder) => { 
     const keys = placeholder.split('.'); 
-    let val = placeholders; 
-    for (const key of keys) val = val ? val[key] : ''; 
-    return val;
+    let val = placeholders;
+
+    for (const key of keys) {
+      if (val) val = val[key];
+      else break;
+    }
+
+    return val ?? '';
   });
 
   const { data: comments } = await github.issues.listComments({
