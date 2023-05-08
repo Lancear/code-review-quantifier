@@ -65,7 +65,7 @@ async function fetchAccessToken(installation) {
   const token = jwt.sign({
     iat: Math.floor(Date.now() / 1000) - 60,
     exp: Math.floor(Date.now() / 1000) + 5 * 60,
-    iss: installation.node_id,
+    iss: installation.id,
     alg: 'RS256',
   }, PRIVATE_KEY, { algorithm: 'RS256' });
 
@@ -93,6 +93,7 @@ export default async function handler(request,response) {
 
   try {
     console.dir(installation.node_id);
+    console.dir(installation.id);
     const tokenInfo = await fetchAccessToken(installation);
     console.dir(tokenInfo);
     // await quantifyPr(
