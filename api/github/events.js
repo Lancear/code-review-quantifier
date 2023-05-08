@@ -268,6 +268,9 @@ function countFile(patchContent, oldFile, newFile) {
 
   const oldLines = oldFile.content.split('\n');
   const newLines = newFile.content.split('\n');
+  console.dir(newFile.filename);
+  console.dir(oldLines);
+  console.dir(newLines);
 
   const oldFileExtension = oldFile.filename.split('.').at(-1);
   const newFileExtension = newFile.filename.split('.').at(-1);
@@ -282,7 +285,6 @@ function countFile(patchContent, oldFile, newFile) {
   for (const line of patch) {
     if (line.startsWith("@@")) {
       const matches = line.match(/(-|\+)?(\d+),\d+ (-|\+)?(\d+),\d+/);
-      if (!matches) continue;
 
       if (matches[1] === '+') {
         newRow = parseInt(matches[2]);
