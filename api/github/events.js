@@ -62,7 +62,6 @@ export default async function handler(request,response) {
   response.status(200).send();
 }
 async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
-  _config.labels.sort((a, b) => a.maxChanges - b.maxChanges);
 
   const REPO_INFO = {
     owner,
@@ -87,6 +86,7 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
     });
 
     config = JSON.parse(Buffer.from(res.data.content, 'base64').toString());
+    config.labels?.sort((a, b) => a.maxChanges - b.maxChanges);
   }
   catch (err) {
     return;
@@ -94,7 +94,7 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
 
   const files = await getPrFiles(github, PR_INFO);
 
-  const filteredFiles = files.filter((file) => !config.exclude.files.some(
+  const filteredFiles = files.filter((file) => !config.exclude?.files?.some(
     (excludePattern) => minimatch(file.filename, excludePattern)
   ));
 
@@ -117,7 +117,7 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
   const statsPerFile = await Promise.all(statsPromises);
   const { stats, changes, label } = countTotalCountInfo(statsPerFile, config);
 
-  const configLabelNames = config.labels.map(label => label.name);
+  const configLabelNames = config.labels?.map(label => label.name);
   const labelsToRemove = pr.labels.filter(
     (prLabel) => prLabel.name !== label.name && configLabelNames.includes(prLabel.name),
   );
@@ -138,7 +138,7 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
     await github.issues.createComment({
       ...REPO_INFO,
       issue_number: pr.number,
-      body: '## This pull request seems to have `' + changes + '` changes!\nGenerally speaking it is best to aim for `' + config.target + '` or less to keep pull requests easy and quick to review!\n\n### Detailed stats:\n```json\n' + JSON.stringify(stats, null, 2) + '\n```\n\n' + (changes <= config.target ? '![](https://media.tenor.com/TMCjhANSMhEAAAAC/bear-small-but-mighty.gif)\n' : '![](https://media.tenor.com/WxsVrj5SehYAAAAM/you-are-fat-face.gif)\n'),
+      body: '## This pull request seems to have `' + changes + '` changes!\nGenerally speaking it is best to aim for `' + 256 + '` or less to keep pull requests easy and quick to review!\n\n### Detailed stats:\n```json\n' + JSON.stringify(stats, null, 2) + '\n```\n\n' + (changes <= config.target ? '![](https://media.tenor.com/TMCjhANSMhEAAAAC/bear-small-but-mighty.gif)\n' : '![](https://media.tenor.com/WxsVrj5SehYAAAAM/you-are-fat-face.gif)\n'),
     });
   }
 }
@@ -209,9 +209,9 @@ function countTotalCountInfo(statsPerFile, config) {
   }));
 
   let changes = stats.additions.default + stats.deletions.default;
-  if (!config?.exclude?.lines?.blank) changes += stats.additions.blank + stats.deletions.blank;
-  if (!config?.exclude?.lines?.comments) changes += stats.additions.comments + stats.deletions.comments;
-  if (!config?.exclude?.lines?.imports) changes += stats.additions.imports + stats.deletions.imports;
+  if (!config.exclude?.lines?.blank) changes += stats.additions.blank + stats.deletions.blank;
+  if (!config.exclude?.lines?.comments) changes += stats.additions.comments + stats.deletions.comments;
+  if (!config.exclude?.lines?.imports) changes += stats.additions.imports + stats.deletions.imports;
 
   const label = config.labels?.find(label => !label.maxChanges || label.maxChanges >= changes);
 
