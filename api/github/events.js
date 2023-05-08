@@ -53,7 +53,6 @@ export default async function handler(request,response) {
         pull_number: pull_request.number 
       }, 
       pull_request, 
-      CONFIG
     );
   }
   catch (err) {
@@ -62,7 +61,7 @@ export default async function handler(request,response) {
 
   response.status(200).send();
 }
-async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr, _config) {
+async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
   _config.labels.sort((a, b) => a.maxChanges - b.maxChanges);
 
   const REPO_INFO = {
