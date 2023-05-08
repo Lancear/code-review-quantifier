@@ -84,27 +84,22 @@ async function fetchAccessToken(installation) {
  * @param {import('@vercel/node').VercelResponse} response 
  */
 export default async function handler(request,response) {
-  // console.dir(request.body.installation);
-  // console.dir(request.body.repository.name);
-  // console.dir(request.body.repository.owner.login);
-  // console.dir(request.body.pull_request.number);
-
   const { installation, repository, pull_request } = request.body;
 
   try {
     console.dir(installation.id);
     const tokenInfo = await fetchAccessToken(installation);
     console.dir(tokenInfo);
-    // await quantifyPr(
-    //   tokenInfo.token, 
-    //   { 
-    //     owner: repository.owner.login, 
-    //     repo: repository.name, 
-    //     pull_number: pull_request.number 
-    //   }, 
-    //   pull_request, 
-    //   CONFIG
-    // );
+    await quantifyPr(
+      tokenInfo.token, 
+      { 
+        owner: repository.owner.login, 
+        repo: repository.name, 
+        pull_number: pull_request.number 
+      }, 
+      pull_request, 
+      CONFIG
+    );
   }
   catch (err) {
     console.error(err);
