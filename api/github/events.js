@@ -74,8 +74,6 @@ async function fetchAccessToken(installation) {
     { method: 'POST', headers: { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + token }}
   );
 
-  console.dir(res.status);
-
   return res.json();
 }
 
@@ -87,9 +85,7 @@ export default async function handler(request,response) {
   const { installation, repository, pull_request } = request.body;
 
   try {
-    console.dir(installation.id);
     const tokenInfo = await fetchAccessToken(installation);
-    console.dir(tokenInfo);
     await quantifyPr(
       tokenInfo.token, 
       { 
@@ -286,6 +282,7 @@ function countFile(patchContent, oldFile, newFile) {
   for (const line of patch) {
     if (line.startsWith("@@")) {
       const matches = line.match(/(-|\+)?(\d+),\d+ (-|\+)?(\d+),\d+/);
+      if (!matches) continue;
 
       if (matches[1] === '+') {
         newRow = parseInt(matches[2]);
