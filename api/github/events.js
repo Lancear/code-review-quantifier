@@ -66,8 +66,8 @@ async function fetchAccessToken(installation) {
     iat: Date.now() - 60_000,
     exp: Date.now() + 5 * 60_000,
     iss: installation.id,
-    alg: "RS256",
-  }, PRIVATE_KEY);
+    alg: 'RS256',
+  }, PRIVATE_KEY, { algorithm: 'RS256' });
 
   const res = await fetch(
     'https://api.github.com/app/installations/' + installation.id + '/access_tokens', 
