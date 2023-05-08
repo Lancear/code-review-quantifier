@@ -103,8 +103,8 @@ export default async function handler(request,response) {
 
   response.status(200).send();
 }
-async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr, config) {
-  config.labels.sort((a, b) => a.maxChanges - b.maxChanges);
+async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr, _config) {
+  _config.labels.sort((a, b) => a.maxChanges - b.maxChanges);
 
   const REPO_INFO = {
     owner,
@@ -119,6 +119,14 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr, config
   const github = new Octokit({
     auth: GITHUB_TOKEN,
   });
+
+  const { data: config } = github.repos.getContent({
+    ...REPO_INFO,
+    path: '.quantifier.json',
+  });
+
+  console.dir(config);
+  return;
 
   const files = await getPrFiles(github, PR_INFO);
 
