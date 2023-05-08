@@ -44,8 +44,10 @@ async function fetchAccessToken(installation) {
  */
 export default async function handler(request,response) {
   const { installation, repository, pull_request } = request.body;
+  if (!installation || !repository || !pull_request) return;
 
   try {
+    console.dir(installation.id);
     const tokenInfo = await fetchAccessToken(installation);
     await quantifyPr(
       tokenInfo.token, 
