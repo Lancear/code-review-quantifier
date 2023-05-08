@@ -62,7 +62,6 @@ export default async function handler(request,response) {
   response.status(200).send();
 }
 async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
-
   const REPO_INFO = {
     owner,
     repo,
@@ -85,10 +84,13 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
       path: '.quantifier.json',
     });
 
+    console.dir(Buffer.from(res.data.content, 'base64').toString());
     config = JSON.parse(Buffer.from(res.data.content, 'base64').toString());
+    console.dir(config);
     config.labels?.sort((a, b) => a.maxChanges - b.maxChanges);
   }
   catch (err) {
+    console.error(err);
     return;
   }
 
