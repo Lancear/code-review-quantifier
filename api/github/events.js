@@ -19,47 +19,6 @@ function initParsers() {
   };
 }
 
-const CONFIG = {
-  exclude: {
-    files: [
-      "**/*.yml",
-      "**/*.yaml",
-      "**/*.json",
-      "**/*.md",
-      "**/*.lock",
-      "**/*.test.ts",
-      "**/*.fixtures.ts",
-    ],
-    lines: {
-      blank: true,
-      comments: true,
-      imports: true,
-    }
-  },
-  target: 256,
-  labels: [
-    {
-      name: "Extra Small",
-      maxChanges: 16,
-    },
-    {
-      name: "Small",
-      maxChanges: 64,
-    },
-    {
-      name: "Medium",
-      maxChanges: 256,
-    },
-    {
-      name: "Large",
-      maxChanges: 512,
-    },
-    {
-      name: "Extra Large",
-    },
-  ],
-};
-
 async function fetchAccessToken(installation) {
   const { PRIVATE_KEY, APP_ID } = process.env;
   const token = jwt.sign({
@@ -120,13 +79,19 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr, _confi
     auth: GITHUB_TOKEN,
   });
 
-  const { data: config } = await github.repos.getContent({
-    ...REPO_INFO,
-    path: '.quantifier.json',
-  });
+  let config = null;
 
-  console.dir(config);
-  return;
+  try {
+    const res = await github.repos.getContent({
+      ...REPO_INFO,
+      path: '.quantifier.json',
+    });
+
+    config = JSON.parse(Buffer.from(res.data.content, 'base64').toString());
+  }
+  catch (err) {
+    return;
+  }
 
   const files = await getPrFiles(github, PR_INFO);
 
@@ -171,11 +136,11 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr, _confi
       labels: [label.name],
     });
 
-    // await github.issues.createComment({
-    //   ...REPO_INFO,
-    //   issue_number: pr.number,
-    //   body: '## This pull request seems to have `' + changes + '` changes!\nGenerally speaking it is best to aim for `' + config.target + '` or less to keep pull requests easy and quick to review!\n\n### Detailed stats:\n```json\n' + JSON.stringify(stats, null, 2) + '\n```\n\n' + (changes <= config.target ? '![](https://media.tenor.com/TMCjhANSMhEAAAAC/bear-small-but-mighty.gif)\n' : '![](https://media.tenor.com/WxsVrj5SehYAAAAM/you-are-fat-face.gif)\n'),
-    // });
+    await github.issues.createComment({
+      ...REPO_INFO,
+      issue_number: pr.number,
+      body: '## This pull request seems to have `' + changes + '` changes!\nGenerally speaking it is best to aim for `' + config.target + '` or less to keep pull requests easy and quick to review!\n\n### Detailed stats:\n```json\n' + JSON.stringify(stats, null, 2) + '\n```\n\n' + (changes <= config.target ? '![](https://media.tenor.com/TMCjhANSMhEAAAAC/bear-small-but-mighty.gif)\n' : '![](https://media.tenor.com/WxsVrj5SehYAAAAM/you-are-fat-face.gif)\n'),
+    });
   }
 }
 
