@@ -120,7 +120,7 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr, _confi
     auth: GITHUB_TOKEN,
   });
 
-  const { data: config } = github.repos.getContent({
+  const { data: config } = await github.repos.getContent({
     ...REPO_INFO,
     path: '.quantifier.json',
   });
