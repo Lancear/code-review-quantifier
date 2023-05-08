@@ -288,7 +288,7 @@ function countFile(patchContent, oldFile, newFile) {
 
   for (const line of patch) {
     if (line.startsWith("@@")) {
-      const matches = line.match(/(-|\+)?(\d+),\d+ (-|\+)?(\d+),\d+/);
+      const matches = line.match(/(-|\+)?(\d+),?\d* (-|\+)?(\d+),?\d*/);
 
       if (matches[1] === '+') {
         newRow = parseInt(matches[2]);
