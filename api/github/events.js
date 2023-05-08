@@ -70,7 +70,7 @@ async function fetchAccessToken(installation) {
   }, PRIVATE_KEY, { algorithm: 'RS256' });
 
   const res = await fetch(
-    'https://api.github.com/app/installations/' + installation.node_id + '/access_tokens', 
+    'https://api.github.com/app/installations/' + installation.id + '/access_tokens', 
     { method: 'GET', headers: { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + token }}
   );
 
