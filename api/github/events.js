@@ -71,8 +71,10 @@ async function fetchAccessToken(installation) {
 
   const res = await fetch(
     'https://api.github.com/app/installations/' + installation.id + '/access_tokens', 
-    { method: 'POST', headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + token }}
+    { method: 'POST', headers: { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + token }}
   );
+
+  console.dir(res.status);
 
   return res.json();
 }
@@ -90,18 +92,19 @@ export default async function handler(request,response) {
   const { installation, repository, pull_request } = request.body;
 
   try {
+    console.dir(installation);
     const tokenInfo = await fetchAccessToken(installation);
     console.dir(tokenInfo);
-    await quantifyPr(
-      tokenInfo.token, 
-      { 
-        owner: repository.owner.login, 
-        repo: repository.name, 
-        pull_number: pull_request.number 
-      }, 
-      pull_request, 
-      CONFIG
-    );
+    // await quantifyPr(
+    //   tokenInfo.token, 
+    //   { 
+    //     owner: repository.owner.login, 
+    //     repo: repository.name, 
+    //     pull_number: pull_request.number 
+    //   }, 
+    //   pull_request, 
+    //   CONFIG
+    // );
   }
   catch (err) {
     console.error(err);
