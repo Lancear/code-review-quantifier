@@ -249,13 +249,6 @@ function countFile(patchContent, oldFile, newFile) {
 
   const patch = patchContent.split('\n');
 
-  if (newFile.filename.endsWith(".txt")) {
-    console.dir(newFile.filename);
-    console.dir(oldLines);
-    console.dir(newLines);
-    console.dir(patch);
-  }
-
   let oldRow, newRow;
 
   for (const line of patch) {
