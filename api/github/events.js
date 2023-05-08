@@ -47,7 +47,7 @@ export default async function handler(request,response) {
   if (!installation || !repository || !pull_request) return;
 
   try {
-    console.dir(installation.id);
+    console.dir(installation);
     const tokenInfo = await fetchAccessToken(installation);
     await quantifyPr(
       tokenInfo.token, 
@@ -145,7 +145,7 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
         issue_number: PR_INFO.pull_number,
       });
 
-      console.dir(res.data.map(d => d.user));
+      // console.dir(res.data.map(d => d.user));
     }
     catch (err) {
     }
