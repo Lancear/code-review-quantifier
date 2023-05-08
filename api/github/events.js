@@ -71,7 +71,7 @@ async function fetchAccessToken(installation) {
 
   const res = await fetch(
     'https://api.github.com/app/installations/' + installation.id + '/access_tokens', 
-    { method: 'GET', headers: { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + token }}
+    { method: 'POST', headers: { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + token }}
   );
 
   console.dir(res.status);
