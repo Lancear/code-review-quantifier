@@ -63,8 +63,8 @@ const CONFIG = {
 async function fetchAccessToken(installation) {
   const { PRIVATE_KEY } = process.env;
   const token = jwt.sign({
-    iat: Date.now() - 60_000,
-    exp: Date.now() + 5 * 60_000,
+    iat: Math.floor(Date.now() / 1000) - 60,
+    exp: Math.floor(Date.now() / 1000) + 5 * 60,
     iss: installation.id,
     alg: 'RS256',
   }, PRIVATE_KEY, { algorithm: 'RS256' });
