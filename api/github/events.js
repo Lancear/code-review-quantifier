@@ -154,7 +154,7 @@ async function quantifyPr(GITHUB_TOKEN, { owner, repo, pull_number }, pr) {
     changes,
   };
 
-  const body = bodyTemplate.replace(/\$\{([^.]+(\.[^.]+)*)\}/g, (_, placeholder) => { 
+  const body = bodyTemplate.replace(/\$\{([^.}]+(\.[^.}]+)*)\}/g, (_, placeholder) => { 
     const keys = placeholder.split('.'); 
     let val = placeholders; 
     for (const key of keys) val = val ? val[key] : ''; 
