@@ -43,11 +43,12 @@ async function fetchAccessToken(installation) {
  * @param {import('@vercel/node').VercelResponse} response 
  */
 export default async function handler(request, response) {
-  const { action, sender, installation, repository, pull_request } = request.body;
-  if (!installation || !repository || !pull_request) return;
-
-  console.dir(action);
-  console.dir(sender.login);
+  const { action, installation, repository, pull_request } = request.body;
+  
+  if (action !== 'synchronize' || !installation || !repository || !pull_request) {
+    response.status(200).send();
+    return;
+  }
 
   try {
     const tokenInfo = await fetchAccessToken(installation);
