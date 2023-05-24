@@ -45,7 +45,7 @@ async function fetchAccessToken(installation) {
 export default async function handler(request, response) {
   const { action, installation, repository, pull_request } = request.body;
   
-  if (action !== 'synchronize' || !installation || !repository || !pull_request) {
+  if (!['synchronize', 'opened'].includes(action) || !installation || !repository || !pull_request) {
     response.status(200).send();
     return;
   }
