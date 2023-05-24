@@ -47,7 +47,7 @@ export default async function handler(request, response) {
   if (!installation || !repository || !pull_request) return;
 
   console.dir(action);
-  console.dir(sender);
+  console.dir(sender.login);
 
   try {
     const tokenInfo = await fetchAccessToken(installation);
