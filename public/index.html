@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/modern-normalize/2.0.0/modern-normalize.min.css" integrity="sha512-4xo8blKMVCiXpTaLzQSLSw3KFOVPWhm/TRtuPVc4WG6kUgjH6J03IBuG7JZPkcWMxJ5huwaBpOpnwYElP/m6wg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="icon" href="icon.png" />
   <title>Noice</title>
 </head>
@@ -13,11 +14,11 @@
   
   <h2> Code Review Quantifier</h2>
   <p>This app helps you visualise and keep track of your pull request sizes better by labeling pull request with configurable size labels. In general smaller pull requests are easier to review and results in a higher code quality as review quality drops with each file within a pull request.</p>
-  <b>Adds a label to the pull requests based on their size and the config:</b>
+  <p><b>Adds a label to the pull requests based on their size and the config:</b></p>
   <img alt="labeled pull request" src="labeled-pull-request.png"/>
-  <b>Comments on the pull requests based on the config:</b>
+  <p><b>Comments on the pull requests based on the config:</b></p>
   <img alt="pull request comment" src="pull-request-comment.png"/>
-  <i>Note: yes, comments are reused to not flood your pull requests with lots of comments ;)</i>
+  <p><i>Note: yes, comments are reused to not flood your pull requests with lots of comments ;)</i></p>
   
   <h3>State of this app</h3>
   <p>This app is still in early development, more information coming soon!</p>
@@ -29,7 +30,7 @@
     <li>Javascript & Jsx</li>
     <li>More coming soon...</li>
   </ul>
-  <i>Note: all other file types will be counted like on GitHub by default</i>
+  <p><i>Note: all other file types will be counted like on GitHub by default</i></p>
 
   <h3>Example config:</h3>
   <p>The config file should be named `.quantifier.json` and placed in the root directory of the repository for the app to recognize it.</p>
@@ -77,7 +78,7 @@
 
     }
   ],
-  "comment": "## This pull request seems to have `${changes}` changes!\nGenerally speaking it is best to aim for `256` or less to keep pull requests easy and quick to review!\n\n<details>\n<summary><h3>Detailed stats</h3></summary>\n\n${codeblock.stats}\n\n${label.gif}\n\n</details>"
+  "comment": "## This pull request seems to have `${changes}` changes!\nGenerally speaking it is best to aim for `256` or less to keep pull requests easy and quick to review!\n\n&lt;details&gt;\n&lt;summary&gt;&lt;h3&gt;Detailed stats&lt;/h3&gt;&lt;/summary&gt;\n\n${codeblock.stats}\n\n${label.gif}\n\n&lt;/details&gt;"
 }
   </pre></code>
 </body>
