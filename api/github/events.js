@@ -3,8 +3,6 @@ import { minimatch } from 'minimatch';
 import Parser from 'tree-sitter';
 import Typescript from 'tree-sitter-typescript';
 import jwt from "jsonwebtoken";
-// import dotenv from "dotenv";
-// dotenv.config();
 
 const PARSERS = initParsers();
 
@@ -45,6 +43,9 @@ async function fetchAccessToken(installation) {
 export default async function handler(request, response) {
   const { action, installation, repository, pull_request } = request.body;
   
+  console.log("Github event incoming:");
+  console.log(action);
+
   if (!['synchronize', 'opened'].includes(action) || !installation || !repository || !pull_request) {
     response.status(200).send();
     return;
