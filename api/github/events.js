@@ -2,6 +2,7 @@ import { Octokit } from '@octokit/rest';
 import { minimatch } from 'minimatch';
 import Parser from 'tree-sitter';
 import Typescript from 'tree-sitter-typescript';
+import Javascript from 'tree-sitter-javascript';
 import jwt from "jsonwebtoken";
 
 const PARSERS = initParsers();
@@ -13,7 +14,15 @@ function initParsers() {
   const tsxParser = new Parser();
   tsxParser.setLanguage(Typescript.tsx);
 
+  const jsParser = new Parser();
+  tsParser.setLanguage(Javascript.javascript);
+
+  const jsxParser = new Parser();
+  tsxParser.setLanguage(Javascript.jsx);
+
   return {
+    js: jsParser,
+    jsx: jsxParser,
     ts: tsParser,
     tsx: tsxParser,
   };
@@ -43,10 +52,7 @@ async function fetchAccessToken(installation) {
 export default async function handler(request, response) {
   const { action, installation, repository, pull_request } = request.body;
   
-  console.log("Github event incoming:");
-  console.log(action);
-
-  if (!['synchronize', 'opened'].includes(action) || !installation || !repository || !pull_request) {
+  if (!['synchronize', 'opened', 'edited'].includes(action) || !installation || !repository || !pull_request) {
     response.status(200).send();
     return;
   }
