@@ -8,16 +8,16 @@
   <link rel="icon" href="icon.png" />
   <title>Noice</title>
 </head>
-<body style="padding: 3rem 2rem;">
+<body style="padding: 3rem 5rem; max-width: 60rem;">
   <h1>Hey there!</h1>
   <a href="https://github.com/apps/code-review-quantifier">You can find the GitHub app here :D</a>
   
   <h2> Code Review Quantifier</h2>
   <p>This app helps you visualise and keep track of your pull request sizes better by labeling pull request with configurable size labels. In general smaller pull requests are easier to review and results in a higher code quality as review quality drops with each file within a pull request.</p>
   <p><b>Adds a label to the pull requests based on their size and the config:</b></p>
-  <img alt="labeled pull request" src="labeled-pull-request.png"/>
+  <img style="width: 50%;" alt="labeled pull request" src="labeled-pull-request.png"/>
   <p><b>Comments on the pull requests based on the config:</b></p>
-  <img alt="pull request comment" src="pull-request-comment.png"/>
+  <img style="width: 100%;" alt="pull request comment" src="pull-request-comment.png"/>
   <p><i>Note: yes, comments are reused to not flood your pull requests with lots of comments ;)</i></p>
   
   <h3>State of this app</h3>
@@ -34,7 +34,7 @@
 
   <h3>Example config:</h3>
   <p>The config file should be named `.quantifier.json` and placed in the root directory of the repository for the app to recognize it.</p>
-  <code style="width: 100%; overflow-x: scroll;"><pre>
+  <code style="background: #f5f5f5;"><pre style="width: 100%; overflow-x: scroll;">
 {
   "exclude": {
     "files": [
