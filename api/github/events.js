@@ -15,14 +15,11 @@ function initParsers() {
   tsxParser.setLanguage(Typescript.tsx);
 
   const jsParser = new Parser();
-  tsParser.setLanguage(Javascript.javascript);
-
-  const jsxParser = new Parser();
-  tsxParser.setLanguage(Javascript.jsx);
+  tsParser.setLanguage(Javascript);
 
   return {
     js: jsParser,
-    jsx: jsxParser,
+    jsx: jsParser,
     ts: tsParser,
     tsx: tsxParser,
   };
