@@ -52,6 +52,10 @@ async function fetchAccessToken(installation) {
 export default async function handler(request, response) {
   const { action, installation, repository, pull_request } = request.body;
   
+  console.log("Github event incoming:");
+  console.log(repository.name);
+  console.log(action);
+
   if (!['synchronize', 'opened', 'edited'].includes(action) || !installation || !repository || !pull_request) {
     response.status(200).send();
     return;
