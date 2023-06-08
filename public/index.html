@@ -10,5 +10,75 @@
 <body>
   <h1>Hey there!</h1>
   <a href="https://github.com/apps/code-review-quantifier">You can find the GitHub app here :D</a>
+  
+  <h2> Code Review Quantifier</h2>
+  <p>This app helps you visualise and keep track of your pull request sizes better by labeling pull request with configurable size labels. In general smaller pull requests are easier to review and results in a higher code quality as review quality drops with each file within a pull request.</p>
+  <b>Adds a label to the pull requests based on their size and the config:</b>
+  <img alt="labeled pull request" src="labeled-pull-request.png"/>
+  <b>Comments on the pull requests based on the config:</b>
+  <img alt="pull request comment" src="pull-request-comment.png"/>
+  <i>Note: yes, comments are reused to not flood your pull requests with lots of comments ;)</i>
+  
+  <h3>State of this app</h3>
+  <p>This app is still in early development, more information coming soon!</p>
+  <p>Please only install it for repositories you want to use the app with, this improves the performance for all of us. Thank you!</p>
+  
+  <h3>Supported languages</h3>
+  <ul>
+    <li>Typescript & Tsx</li>
+    <li>Javascript & Jsx</li>
+    <li>More coming soon...</li>
+  </ul>
+  <i>Note: all other file types will be counted like on GitHub by default</i>
+
+  <h3>Example config:</h3>
+  <p>The config file should be named `.quantifier.json` and placed in the root directory of the repository for the app to recognize it.</p>
+  <code><pre>
+{
+  "exclude": {
+    "files": [
+      "**/*.yml",
+      "**/*.yaml",
+      "**/*.json",
+      "**/*.md",
+      "**/*.lock",
+      "**/*.test.ts",
+      "**/*.fixtures.ts"
+    ],
+    "lines": {
+      "blank": true,
+      "comments": true,
+      "imports": true
+    }
+  },
+  "labels": [
+    {
+      "name": "Extra Small",
+      "maxChanges": 16,
+      "comment": "## This pull request seems to have `${changes}` changes! 🥳\nYou are AMAZING and know that it is best to aim for `256` or less to keep pull requests easy and quick to review!\n\n<details>\n<summary><h3>Detailed stats</h3></summary>\n\n${codeblock.stats}\n\n![celebration gif](https://media.tenor.com/kxzr3-r6XoIAAAAM/lets-get-this-party-started-yeah.gif)\n\n</details>"
+    },
+    {
+      "name": "Small",
+      "maxChanges": 64
+    },
+    {
+      "name": "Medium",
+      "maxChanges": 256
+    },
+    {
+      "name": "Large",
+      "maxChanges": 512,
+      "gif": "![](https://media.tenor.com/WxsVrj5SehYAAAAM/you-are-fat-face.gif)"
+    },
+    {
+      "name": "Extra Large",
+      "comment": "",
+      "gif": "![](https://i.giphy.com/media/RvY1c24WC8jV6/giphy.webp)"
+
+    }
+  ],
+  "comment": "## This pull request seems to have `${changes}` changes!\nGenerally speaking it is best to aim for `256` or less to keep pull requests easy and quick to review!\n\n<details>\n<summary><h3>Detailed stats</h3></summary>\n\n${codeblock.stats}\n\n${label.gif}\n\n</details>"
+}
+  </pre></code>
 </body>
 </html>
